@@ -135,28 +135,33 @@
       font-size: 0.84rem;
       font-weight: 800;
       line-height: 1;
-      letter-spacing: 0.02em;
+      letter-spacing: 0;
       color: var(--text);
       white-space: nowrap;
       transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
     }
 
-    .cell .expr,
-    .cell .result {
-      font-size: inherit;
-      margin: 0;
+    .cell .equation {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.22em;
       color: inherit;
+      font-size: inherit;
+      line-height: 1;
     }
 
-    .cell .expr {
-      margin-right: 2px;
-      letter-spacing: 0.03em;
+    .cell .num,
+    .cell .op {
+      color: inherit;
+      font-size: inherit;
+      line-height: 1;
     }
 
-    .cell .result {
-      font-size: 0.66rem;
-      margin-top: 1px;
-      letter-spacing: 0.02em;
+    .cell .op {
+      opacity: 0.92;
     }
 
     .cell.x1 {
@@ -323,7 +328,7 @@
             cell.dataset.a = number;
             cell.dataset.b = b;
             cell.dataset.key = `${number}-${b}`;
-            cell.innerHTML = `<span class="expr">${number}&times;${b}</span><span class="result">=${number * b}</span>`;
+            cell.innerHTML = `<span class="equation"><span class="num">${number}</span><span class="op">&times;</span><span class="num">${b}</span><span class="op">=</span><span class="num">${number * b}</span></span>`;
             miniGrid.appendChild(cell);
             cells.push(cell);
           }
