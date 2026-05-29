@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablas de Multiplicar</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: rgb(38,186,165);
+      --secondary: rgb(55,95,122);
+      --bg: #eef7f6;
+      --card: #ffffff;
+      --line: rgba(55,95,122,0.16);
+      --text: #183244;
+      --soft: rgba(38,186,165,0.10);
+      --red-bg: #ffe4e6;
+      --red-border: #ef4444;
+      --red-text: #b91c1c;
+      --magenta-bg: #fdf2f8;
+      --magenta-border: #ec4899;
+      --magenta-text: #9d174d;
+      --green-bg: #dcfce7;
+      --green-border: #22c55e;
+      --green-text: #166534;
+      --orange-bg: #fff7ed;
+      --orange-border: #fb923c;
+      --orange-text: #c2410c;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, rgba(38,186,165,0.12), rgba(55,95,122,0.08));
+      color: var(--text);
+      padding: 2px;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      height: 100dvh;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 0;
+      border: 0;
+      box-shadow: none;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+      padding: 1px 2px;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 1px;
+      background: rgba(255,255,255,0.97);
+      padding: 1px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.65);
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--secondary);
+      line-height: 1;
+      min-height: 18px;
+    }
+
+    .control input[type="checkbox"] {
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 1px;
+      flex: 1;
+      align-content: start;
+    }
+
+    .table-card {
+      background: linear-gradient(180deg, #ffffff, var(--bg));
+      border: 1px solid rgba(55,95,122,0.10);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .table-title {
+      background: var(--secondary);
+      color: white;
+      text-align: center;
+      padding: 0;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1.05;
+      min-height: 14px;
+    }
+
+    .mini-grid {
+      display: grid;
+      gap: 0;
+      padding: 0;
+    }
+
+    .cell {
+      position: relative;
+      min-height: 17px;
+      border-radius: 0;
+      border: 1px solid rgba(55,95,122,0.08);
+      background: #f8fbfb;
+      padding: 0 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.84rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      white-space: nowrap;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .cell .expr,
+    .cell .result {
+      font-size: inherit;
+      margin: 0;
+      color: inherit;
+    }
+
+    .cell .expr {
+      margin-right: 2px;
+      letter-spacing: 0.03em;
+    }
+
+    .cell .result {
+      font-size: 0.66rem;
+      margin-top: 1px;
+      letter-spacing: 0.02em;
+    }
+
+    .cell.x1 {
+      background: var(--red-bg);
+      border-color: var(--red-border);
+      color: var(--red-text);
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.12);
+    }
+
+    .cell.x10 {
+      background: var(--orange-bg);
+      border-color: var(--orange-border);
+      color: var(--orange-text);
+      box-shadow: 0 0 0 1px rgba(251,146,60,0.14);
+    }
+
+    .cell.recip-mark {
+      background: var(--magenta-bg);
+      border-color: var(--magenta-border);
+      color: var(--magenta-text);
+      box-shadow: 0 0 0 1px rgba(236,72,153,0.16);
+    }
+
+    .cell.summary-success {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+      color: var(--green-text);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.16);
+      animation: successPulse 0.45s ease-out 1;
+    }
+
+    .cell.hidden-cell {
+      display: none;
+    }
+
+    @keyframes successPulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.06);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .row {
+      display: grid;
+      gap: 1px;
+    }
+
+    .row-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .row-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 420px) {
+      .phone {
+        border-radius: 0;
+        height: 100dvh;
+      }
+
+      .layout {
+        gap: 1px;
+        padding: 1px;
+      }
+
+      .mini-grid {
+        gap: 0;
+        padding: 0;
+      }
+
+      .table-title {
+        font-size: 0.78rem;
+        padding: 0;
+        min-height: 13px;
+      }
+
+      .cell {
+        min-height: 16px;
+        font-size: 0.78rem;
+        padding: 0 1px;
+      }
+
+      .cell .result {
+        font-size: inherit;
+      }
+
+      .control {
+        font-size: 0.78rem;
+        min-height: 17px;
+        padding: 1px 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="controls">
+      <label class="control">
+        <input type="checkbox" id="toggleX1" />
+        <span>x1</span>
+      </label>
+      <label class="control">
+        <input type="checkbox" id="toggleX10" />
+        <span>x10</span>
+      </label>
+      <label class="control">
+        <input type="checkbox" id="toggleReciprocos" />
+        <span>rp</span>
+      </label>
+      <label class="control">
+        <input type="checkbox" id="toggleResumen" />
+        <span>resumen</span>
+      </label>
+      <label class="control">
+        <input type="checkbox" id="toggleReset" />
+        <span>reset</span>
+      </label>
+    </div>
+
+    <div class="layout" id="layout"></div>
+  </div>
+
+  <script>
+    const layout = document.getElementById('layout');
+    const toggleX1 = document.getElementById('toggleX1');
+    const toggleX10 = document.getElementById('toggleX10');
+    const toggleReciprocos = document.getElementById('toggleReciprocos');
+    const toggleResumen = document.getElementById('toggleResumen');
+    const toggleReset = document.getElementById('toggleReset');
+
+    const cells = [];
+
+    const tableGroups = [
+      [1, 2, 3, 4],
+      [5, 6, 7],
+      [8, 9, 10]
+    ];
+
+    function createTables() {
+      tableGroups.forEach(group => {
+        const row = document.createElement('div');
+        row.className = `row ${group.length === 4 ? 'row-4' : 'row-3'}`;
+
+        group.forEach(number => {
+          const card = document.createElement('div');
+          card.className = 'table-card';
+
+          const title = document.createElement('div');
+          title.className = 'table-title';
+          title.textContent = `x${number}`;
+
+          const miniGrid = document.createElement('div');
+          miniGrid.className = 'mini-grid';
+
+          for (let b = 1; b <= 10; b++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.a = number;
+            cell.dataset.b = b;
+            cell.dataset.key = `${number}-${b}`;
+            cell.innerHTML = `<span class="expr">${number}&times;${b}</span><span class="result">=${number * b}</span>`;
+            miniGrid.appendChild(cell);
+            cells.push(cell);
+          }
+
+          card.appendChild(title);
+          card.appendChild(miniGrid);
+          row.appendChild(card);
+        });
+
+        layout.appendChild(row);
+      });
+
+      applyStates();
+    }
+
+    function clearAllHighlights() {
+      cells.forEach(cell => {
+        cell.classList.remove('x1', 'x10', 'recip-mark', 'summary-success', 'hidden-cell');
+      });
+    }
+
+    function applyStates() {
+      clearAllHighlights();
+
+      cells.forEach(cell => {
+        const a = Number(cell.dataset.a);
+        const b = Number(cell.dataset.b);
+        const by1 = a === 1 || b === 1;
+        const by10 = a === 10 || b === 10;
+        const isReciprocalDomain = a >= 2 && a <= 9 && b >= 2 && b <= 9;
+        const isReciprocalDuplicate = isReciprocalDomain && a > b;
+
+        if (toggleResumen.checked && (by1 || by10 || isReciprocalDuplicate)) {
+          cell.classList.add('hidden-cell');
+          return;
+        }
+
+        if (toggleX1.checked && by1) {
+          cell.classList.add('x1');
+        }
+
+        if (toggleX10.checked && by10) {
+          cell.classList.add('x10');
+        }
+        
+        if (toggleReciprocos.checked && isReciprocalDuplicate) {
+          cell.classList.add('recip-mark');
+        }
+
+        if (toggleResumen.checked && isReciprocalDomain && a <= b) {
+          cell.classList.add('summary-success');
+        }
+      });
+    }
+
+    toggleX1.addEventListener('change', applyStates);
+    toggleX10.addEventListener('change', applyStates);
+    toggleReciprocos.addEventListener('change', applyStates);
+    toggleResumen.addEventListener('change', applyStates);
+    toggleReset.addEventListener('change', () => {
+      if (!toggleReset.checked) return;
+      toggleX1.checked = false;
+      toggleX10.checked = false;
+      toggleReciprocos.checked = false;
+      toggleResumen.checked = false;
+      toggleReset.checked = false;
+      applyStates();
+    });
+
+    createTables();
+  </script>
+</body>
+</html>
